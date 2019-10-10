@@ -1,0 +1,45 @@
+version: '3.5'
+
+services:
+  elasticsearch:
+    image: elasticsearch:7.3.2 #docker.elastic.co/elasticsearch/elasticsearch:6.8.3
+    container_name: elasticsearch
+    ports:
+      - 9200:9200
+      - 9300:9300
+    environment:
+      - discovery.type=single-node
+    networks:
+      - elk_network
+  
+  kibana:
+    image: kibana:7.3.2 #docker.elastic.co/kibana/kibana:6.8.3
+    container_name: kibana
+    ports:
+      - 5601:5601
+    #volumes:
+    # - ./Kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+    networks:
+      - elk_network
+  
+  #logstash:
+   # image: logstash:7.3.2
+    #container_name: logstash
+    #volumes:
+     # - ./Logstash/conf:/usr/share/logstash/config
+    #networks:
+     # - elk_network
+  
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:7.3.0
+    container_name: metricbeat
+    environment:
+      - setup.kibana.host=kibana:5601
+      - output.elasticsearch.hosts=["elasticsearch:9200"]
+    networks:
+      - elk_network
+      
+networks: 
+  elk_network:
+    driver: bridge
+
